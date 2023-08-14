@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resistance  Prediction App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Resistance Prediction App</h1>
+    <form class="centered-button" method="POST" action="/predict">
+        <label for="lc">Longitudinal Position of Buoyancy (LC):</label>
+        <input type="text" name="lc" required><br>
+        <label for="pc">Prismatic Coefficient (PC):</label>
+        <input type="text" name="pc" required><br>
+        <label for="ld">Length-Displacement Ratio (L/D):</label>
+        <input type="text" name="ld" required><br>
+        <label for="bd">Beam-Draught Ratio (B/Dr):</label>
+        <input type="text" name="bd" required><br>
+        <label for="lb">Length-Beam Ratio (L/B):</label>
+        <input type="text" name="lb" required><br>
+        <label for="fr">Froude Number (Fr):</label>
+        <input type="text" name="fr" required><br>
+        <button class="btn" type="submit">Predict</button>
+    </form>
+    {% if prediction is defined %}
+    <h2>Resistance (Rr): {{ prediction }}</h2>
+    {% endif %}
+</body>
+</html>

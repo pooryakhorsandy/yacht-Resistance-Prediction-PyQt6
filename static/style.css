@@ -1,0 +1,13 @@
+body {
+    background-image: url('/static/imag.avif');
+    background-size: cover;
+}
+
+.centered-button {
+    text-align: center;
+}
+
+button {
+    font-size: 18px;
+    padding: 10px 20px;
+}
