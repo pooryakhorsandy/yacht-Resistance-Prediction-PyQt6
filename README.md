@@ -29,4 +29,3 @@ The **Yacht Resistance Prediction App** revolutionizes the way yacht hull resist
 
 ---
 
-Feel free to use this version of the README with equal character sizes for your project.
