@@ -29,7 +29,8 @@ The **Yacht Resistance Prediction App** revolutionizes the way yacht hull resist
 
 ## result
 
-![Rec0061-ezgif com-speed](https://github.com/pooryakhorsandy/yacht-Resistance-Prediction-App/assets/91316887/9c7f8f5a-19cc-4bc6-9a92-81d62d0c5569)
+
+![Rec0061-ezgif com-speed](https://github.com/pooryakhorsandy/yacht-Resistance-Prediction-App/assets/91316887/4330fcf6-5d3b-4213-ad19-7de61530bfd1)
 
 
 
