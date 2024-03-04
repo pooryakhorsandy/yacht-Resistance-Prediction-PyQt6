@@ -27,10 +27,15 @@ Contributions to this project are welcome! If you have ideas for improvements or
 The **Yacht Resistance Prediction App** revolutionizes the way yacht hull resistance is predicted. With the power of machine learning, what once took hours can now be accomplished within seconds. By providing accurate and quick predictions, this app aims to streamline the naval engineering process and contribute to the advancement of marine technology.
 
 
-## result
+## Demo
+
+See the Yacht Resistance Prediction App in action:
+
+![Rec0061-ezgif com-speed](https://github.com/pooryakhorsandy/yacht-Resistance-Prediction-App/assets/91316887/86d831d7-6792-4299-aab0-ea290e9cfbe6)
 
 
-![Rec0061-ezgif com-speed](https://github.com/pooryakhorsandy/yacht-Resistance-Prediction-App/assets/91316887/4330fcf6-5d3b-4213-ad19-7de61530bfd1)
+In this demo, observe how the app takes hydrodynamic factors as input and generates quick and accurate predictions of yacht hull resistance.
+
 
 
 
