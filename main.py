@@ -1,0 +1,159 @@
+import sys
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit
+from PyQt6.QtGui import QPixmap, QPalette, QBrush, QResizeEvent
+from PyQt6 import QtCore
+import pickle
+import numpy as np
+import os
+import catboost
+
+class YachtResistanceCalculator(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.init_ui()
+
+    def init_ui(self):
+        # Load the background image
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+
+        # Load the background image using the correct path
+        image_path = os.path.join(base_path, 'image', 'image.png')
+        self.background_image = QPixmap(image_path)
+
+        # Scale the background image to the size of the widget
+        scaled_image = self.background_image.scaled(self.size(), QtCore.Qt.AspectRatioMode.IgnoreAspectRatio)
+
+        # Set the scaled background image as the background of the main widget
+        palette = self.palette()
+        palette.setBrush(QPalette.ColorRole.Window, QBrush(scaled_image))
+        self.setPalette(palette)
+
+        layout = QVBoxLayout(self)
+
+        self.form_group_style = "margin-bottom: 20px;"
+        self.label_style = "display: block; margin-bottom: 5px; color: red;"  # Updated color to red
+        self.input_style = "width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px;"
+        self.error_style = "color: red; margin-top: 5px;"
+        self.button_style = "background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;"
+        self.button_hover_style = "background-color: #45a049;"
+        self.h2_style = "color: #4CAF50;"
+        self.label_style = "display: block; margin-bottom: 5px; color: red; font-weight: bold; font-size: 14px;"  # Updated color to red
+
+        self.LCB_label = QLabel('Longitudinal Center of Buoyancy:')
+        self.LCB_label.setStyleSheet(self.label_style)
+        self.LCB_input = QLineEdit(self)
+        self.LCB_input.setPlaceholderText('Enter a numeric value between -5.0 and 0.0')
+        self.LCB_input.setStyleSheet(self.input_style)
+
+        self.Cp_label = QLabel('Prismatic Coefficient:')
+        self.Cp_label.setStyleSheet(self.label_style)
+        self.Cp_input = QLineEdit(self)
+        self.Cp_input.setPlaceholderText('Enter a numeric value between 0.53 and 0.6')
+        self.Cp_input.setStyleSheet(self.input_style)
+
+        self.L_Dis_label = QLabel('Length Displacement Ratio:')
+        self.L_Dis_label.setStyleSheet(self.label_style)
+        self.L_Dis_input = QLineEdit(self)
+        self.L_Dis_input.setPlaceholderText('Enter a numeric value between 4.34 and 5.11')
+        self.L_Dis_input.setStyleSheet(self.input_style)
+
+        self.B_T_label = QLabel('Beam Draft Ratio:')
+        self.B_T_label.setStyleSheet(self.label_style)
+        self.B_T_input = QLineEdit(self)
+        self.B_T_input.setPlaceholderText('Enter a numeric value between 2.98 and 5.35')
+        self.B_T_input.setStyleSheet(self.input_style)
+
+        self.L_B_label = QLabel('Length Beam Ratio:')
+        self.L_B_label.setStyleSheet(self.label_style)
+        self.L_B_input = QLineEdit(self)
+        self.L_B_input.setPlaceholderText('Enter a numeric value between 2.73 and 3.51')
+        self.L_B_input.setStyleSheet(self.input_style)
+
+        self.Fr_label = QLabel('Froude Number:')
+        self.Fr_label.setStyleSheet(self.label_style)
+        self.Fr_input = QLineEdit(self)
+        self.Fr_input.setPlaceholderText('Enter a numeric value between 0.125 and 0.45')
+        self.Fr_input.setStyleSheet(self.input_style)
+
+        self.Rr_label = QLabel('Residual Resistance:')
+        self.Rr_label.setStyleSheet(self.label_style)
+        self.Rr_display = QLabel(self)
+        self.Rr_display.setStyleSheet(self.input_style)
+
+        self.calculate_button = QPushButton('Calculate', self)
+        self.calculate_button.clicked.connect(self.calculate_Rr)
+
+        layout.addWidget(self.LCB_label)
+        layout.addWidget(self.LCB_input)
+        layout.addWidget(self.Cp_label)
+        layout.addWidget(self.Cp_input)
+        layout.addWidget(self.L_Dis_label)
+        layout.addWidget(self.L_Dis_input)
+        layout.addWidget(self.B_T_label)
+        layout.addWidget(self.B_T_input)
+        layout.addWidget(self.L_B_label)
+        layout.addWidget(self.L_B_input)
+        layout.addWidget(self.Fr_label)
+        layout.addWidget(self.Fr_input)
+        layout.addWidget(self.Rr_label)
+        layout.addWidget(self.Rr_display)
+        layout.addWidget(self.calculate_button)
+
+        self.setWindowTitle('Residuary Resistance Calculator')
+        self.showMaximized()  # Maximize the window initially
+
+    def resizeEvent(self, event: QResizeEvent):
+        # Update only the background image when the widget is resized
+        scaled_image = self.background_image.scaled(self.size(), QtCore.Qt.AspectRatioMode.IgnoreAspectRatio)
+        palette = self.palette()
+        palette.setBrush(QPalette.ColorRole.Window, QBrush(scaled_image))
+        self.setPalette(palette)
+
+    def calculate_Rr(self):
+        try:
+            LCB = float(self.LCB_input.text())
+            Cp = float(self.Cp_input.text())
+            L_Dis = float(self.L_Dis_input.text())
+            B_T = float(self.B_T_input.text())
+            L_B = float(self.L_B_input.text())
+            Fr = float(self.Fr_input.text())
+
+            # Construct the correct path to the model file
+            base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+            model_path = os.path.join(base_path, 'xgb','yacht_catboost_model.pkl')
+
+            print(f"Attempting to load model from: {model_path}")
+
+            if not os.path.exists(model_path):
+                raise FileNotFoundError(f"Model file not found at: {model_path}")
+
+            with open(model_path, 'rb') as model_file:
+                xgb_model = pickle.load(model_file)
+
+            print("Model loaded successfully")
+
+            features = [LCB, Cp, L_Dis, B_T, L_B, Fr]
+            input_data = np.array(features).reshape(1, -1)
+            result = xgb_model.predict(input_data)[0]
+
+            self.Rr_display.setText(f'Result: {result}')
+            self.Rr_display.setStyleSheet(self.label_style)
+
+        except FileNotFoundError as fe:
+            print(f"Error: {fe}")
+            self.Rr_display.setText(f'Model file not found. Check console for details.')
+
+        except Exception as e:
+            print(f"Error loading model: {e}")
+            self.Rr_display.setText(f'Error loading model: {e}. Check console for details.')
+            print("Exception details:", repr(e))
+
+
+def main():
+    app = QApplication(sys.argv)
+    calculator_app = YachtResistanceCalculator()
+    calculator_app.show()
+    sys.exit(app.exec())
+
+if __name__ == '__main__':
+    main()
